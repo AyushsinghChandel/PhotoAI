@@ -67,18 +67,18 @@ model PackPromts {
 
 enum  ModelTypeEnum {
   Man
-  Woman
+  Women
   Other
 }
 
 enum EthinicityEnum {
   White 
   Black
-  Asian_American
-  East_Asian 
-  South_East_Asian
-  South_Asian
-  Middle_Eastern
+  Asian_American       
+  East_Asian           
+  South_East_Asian     
+  South_Asian          
+  Middle_Eastern       
   Pacific
   Hispanic
 }
