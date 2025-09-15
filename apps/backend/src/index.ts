@@ -112,7 +112,7 @@ app.get('/image/bulk', async (req, res) => {
   const imagesData = await prismaClient.outputImages.findMany({
     where : {
       id : {
-        in : ids
+        in : images
       },
       userId: USER_ID
     },
