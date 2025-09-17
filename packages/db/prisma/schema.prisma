@@ -30,10 +30,15 @@ model Model {
   eyeColor       EyecolorEnum
   bald           Boolean
   userId         String
+  triggerWord    String?
+  tensorPath     String?
+  trainingStatus         ModelTrainingStatusEnum   @default(Pending)
   trainingImages TrainingImages[]
   outputImages   OutputImages[]
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  falAiRequestId String?
+  @@index([falAiRequestId])
 }
 
 model TrainingImages {
@@ -49,10 +54,12 @@ model OutputImages {
   modelId     String
   userId      String
   prompt      String
-  status      OutputImageStatusEnum     @default(Pending)
+  falAiRequestId String?
+  TrainingStatus      OutputImageStatusEnum     @default(Pending)
   model       Model       @relation(fields: [modelId], references: [id])
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+  @@index([falAiRequestId])
 }
 
 model Packs {
@@ -96,5 +103,11 @@ enum EyecolorEnum {
 enum OutputImageStatusEnum {
   Pending
   Generated
+  Failed
+}
+
+enum ModelTrainingStatusEnum {
+  Pending
+  Completed
   Failed
 }

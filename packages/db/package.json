@@ -2,9 +2,9 @@
   "name": "@repo/db",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
+  "main": "index.js",
   "export": {
-    ".": "./index.ts"
+    ".": "./index.js"
   },
   "scripts": {
     "build" : "tsc -b"

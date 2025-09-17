@@ -2,9 +2,9 @@
   "name": "@repo/common",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
+  "main": "index.js",
   "exports":{
-    "./types" : "./index.ts"
+    "./types" : "./index.js"
   },
   "scripts": {
     "build" : "tsc -b"
