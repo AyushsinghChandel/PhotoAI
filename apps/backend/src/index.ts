@@ -6,7 +6,6 @@ import dotenv from 'dotenv';
 import { FalAiModel } from './model/FalAiModel';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { fal } from '@fal-ai/client';
 
 
 
@@ -133,7 +132,7 @@ app.post('/pack/generate', async (req, res) => {
     return;
   }
 
-  const prompts = await await prismaClient.packPromts.findMany({
+  const prompts = await await prismaClient.packPrompts.findMany({
     where : {
       packId : parsedBody.data.packId
     }

@@ -58,10 +58,10 @@ model OutputImages {
 model Packs {
   id         String    @id     @default(uuid())
   name       String
-  promts     PackPromts[]
+  prompts     PackPrompts[]
 }
 
-model PackPromts {
+model PackPrompts {
   id       String    @id     @default(uuid())
   prompt   String
   packId   String
