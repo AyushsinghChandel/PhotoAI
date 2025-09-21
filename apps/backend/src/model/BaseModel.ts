@@ -1,11 +1,13 @@
-export class BaseModel {
+export abstract class BaseModel {
     constructor() {}
+    public abstract generateImage(
+        prompt: string,
+        tensorPath: string
+    ): Promise<{ request_id: string; response_url: string }>;
 
-    private async generateImage(prompt: string, tensorPath: string) {
-
-    }
-
-    private async trainModel(prompt: string[], triggerWord : string) {
-        
-    }
+    
+    public abstract trainModel(
+        zipUrl: string,
+        triggerWord: string
+    ): Promise<{ request_id: string; response_url: string }>;
 }

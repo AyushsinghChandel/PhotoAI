@@ -9,7 +9,7 @@ exports.TrainModel = zod_1.z.object({
     ethinicity: zod_1.z.enum(["White", "Black", "Asian_American", "East_Asian", "South_East_Asian", "South_Asian", "Middle_Eastern", "Pacific", "Hispanic"]),
     eyeColor: zod_1.z.enum(["Brown", "Blue", "Gray", "Hazel"]),
     bald: zod_1.z.boolean(),
-    imageUrl: zod_1.z.array(zod_1.z.string())
+    zipUrl: zod_1.z.string()
 });
 exports.GenerateImage = zod_1.z.object({
     prompt: zod_1.z.string().min(2).max(400),

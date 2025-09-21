@@ -25,7 +25,7 @@ export declare const TrainModel: z.ZodObject<{
         Hazel: "Hazel";
     }>;
     bald: z.ZodBoolean;
-    imageUrl: z.ZodArray<z.ZodString>;
+    zipUrl: z.ZodString;
 }, z.core.$strip>;
 export declare const GenerateImage: z.ZodObject<{
     prompt: z.ZodString;

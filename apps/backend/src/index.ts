@@ -4,7 +4,10 @@ import { prismaClient } from "@repo/db";
 import path from 'path';
 import dotenv from 'dotenv';
 import { FalAiModel } from './model/FalAiModel';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { fal } from '@fal-ai/client';
+
 
 
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
@@ -13,7 +16,38 @@ const USER_ID = "123";
 const falAiModel = new FalAiModel();
 const PORT = process.env.PORT || 8080;
 const app = express();
+const s3 = new S3Client({
+  endpoint: process.env.ENDPOINT,
+  region: 'auto',
+  credentials: {
+    accessKeyId: process.env.S3_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.S3_SECRET_KEY!,
+  },
+  forcePathStyle: false
+});
 app.use(express.json());
+
+
+app.get("/pre-signed-url", async (req, res) => {
+  const filename = `models/${Date.now()}_${Math.random()}.zip`;
+  const key = `models/${Date.now()}_${Math.random()}.zip`;
+
+  const command = new PutObjectCommand({
+    Bucket: process.env.BUCKET_NAME!,
+    Key: key,
+    ContentType: 'application/zip',
+    ACL: 'public-read'
+  });
+
+  const expiresIn = 60 * 5;
+  const uploadUrl = await getSignedUrl(s3, command, { expiresIn });
+;
+
+  return res.json({
+    uploadUrl,
+    key
+  })
+});
 
 app.post('/ai/training', async (req, res) => {
   const parsedBody = TrainModel.safeParse(req.body);
@@ -26,7 +60,7 @@ app.post('/ai/training', async (req, res) => {
     return;
   }
   
-  const {request_id, response_url} = await falAiModel.trainModel("",parsedBody.data.name);
+  const {request_id, response_url} = await falAiModel.trainModel(parsedBody.data.zipUrl,parsedBody.data.name);
   const data = await prismaClient.model.create({
     data : {
       name : parsedBody.data.name,
@@ -36,6 +70,7 @@ app.post('/ai/training', async (req, res) => {
       eyeColor: parsedBody.data.eyeColor,
       bald: parsedBody.data.bald,
       userId: USER_ID,
+      zipUrl : parsedBody.data.zipUrl, 
       falAiRequestId : request_id
     }
   })
@@ -104,12 +139,15 @@ app.post('/pack/generate', async (req, res) => {
     }
   })
 
+  let requestIds: { request_id:string }[] = await Promise.all(prompts.map( (prompt) => falAiModel.generateImage(prompt.prompt, parsedBody.data.modelId)));
+
   const images = await prismaClient.outputImages.createManyAndReturn({
-    data : prompts.map(prompt => ({
+    data : prompts.map((prompt,index) => ({
       prompt: prompt.prompt,
       modelId: parsedBody.data.modelId,
       userId : USER_ID,
-      imageUrl : ""
+      imageUrl : "",
+      falAiRequestId : requestIds[index]?.request_id ?? ""
       }))
     })
 
@@ -130,7 +168,7 @@ app.get('/pack/bulk', async (req, res) => {
 });
 
 app.get('/image/bulk', async (req, res) => {
-  const images = req.query.images as string[];
+  const ids = req.query.images as string[];
   const limit = req.query.limit as string ?? "10";
   const offset = req.query.offset as string ?? "0";
 
@@ -138,7 +176,7 @@ app.get('/image/bulk', async (req, res) => {
   const imagesData = await prismaClient.outputImages.findMany({
     where : {
       id : {
-        in : images
+        in : ids
       },
       userId: USER_ID
     },
