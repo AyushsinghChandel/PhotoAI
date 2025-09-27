@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 import { FalAiModel } from './model/FalAiModel';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-
+import cors from 'cors';
 
 
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
@@ -17,35 +17,45 @@ const PORT = process.env.PORT || 8080;
 const app = express();
 const s3 = new S3Client({
   endpoint: process.env.ENDPOINT,
-  region: 'auto',
+  region: 'us-east-1',
   credentials: {
     accessKeyId: process.env.S3_ACCESS_KEY_ID!,
     secretAccessKey: process.env.S3_SECRET_KEY!,
-  },
-  forcePathStyle: false
+  }
 });
+
 app.use(express.json());
-
-
-app.get("/pre-signed-url", async (req, res) => {
-  const filename = `models/${Date.now()}_${Math.random()}.zip`;
-  const key = `models/${Date.now()}_${Math.random()}.zip`;
-
-  const command = new PutObjectCommand({
-    Bucket: process.env.BUCKET_NAME!,
-    Key: key,
-    ContentType: 'application/zip',
-    ACL: 'public-read'
-  });
-
-  const expiresIn = 60 * 5;
-  const uploadUrl = await getSignedUrl(s3, command, { expiresIn });
-;
-
-  return res.json({
-    uploadUrl,
-    key
+app.use(
+  cors({
+    origin: [ "http://localhost:3000"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
+);
+
+
+app.post('/upload-proxy', express.raw({ type: 'application/zip', limit: '200mb' }), async (req, res) => {
+  try {
+    const filename = (req.query.filename as string) || 'models.zip';
+    const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 64);
+    const key = `models/${Date.now()}_${Math.floor(Math.random()*1e6)}_${safeName}`;
+
+    const buffer: Buffer = Buffer.isBuffer(req.body) ? req.body as Buffer : Buffer.from(req.body);
+    const put = new PutObjectCommand({
+      Bucket: process.env.BUCKET_NAME!,
+      Key: key,
+      Body: buffer,
+      ContentType: 'application/zip'
+    });
+    await s3.send(put);
+
+    const objectUrl = `${process.env.ENDPOINT?.replace(/\/$/, '')}/${process.env.BUCKET_NAME}/${key}`;
+    return res.json({ success: true, key, url: objectUrl });
+  } catch (err) {
+    console.error('upload-proxy error', err);
+    return res.status(500).json({ message: 'Upload failed', error: String(err) });
+  }
 });
 
 app.post('/ai/training', async (req, res) => {
@@ -214,7 +224,7 @@ app.post('/fal-ai/webhook/image', async (req, res) => {
       falAiRequestId : reqeustId
     },
     data: {
-      TrainingStatus: "Generated",
+  TrainingStatus: "Generated",
       imageUrl: req.body.image_url
     }
   });
