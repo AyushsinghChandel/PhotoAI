@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "exports":{
-    "./types" : "./index.js"
+    "./types" : "./index.js",
+    "./inferred-types" : "./inferred-types.ts"
   },
   "scripts": {
     "build" : "tsc -b"

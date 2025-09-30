@@ -2,15 +2,18 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
-import { Backend_URL } from "@/app/config";
+import { Backend_URL, CLOUDFARE_URL } from "@/app/config";
 import JSZip from "jszip";
 
-export default function Component() {
+export default function Component({onUploadDone}: {
+  onUploadDone: (zipUrl: string) => void;
+}) {
   return (
     <Card>
       <CardContent className="flex flex-col items-center justify-center  border-dashed border-zinc-200 dark:border-zinc-800 rounded-lg p-10 space-y-6">
         <CloudUploadIcon className="w-16 h-10 text-zinc-500 dark:text-zinc-400" />
         <Button
+          type="button"
           variant="outline"
           onClick={() => {
             const input = document.createElement("input");
@@ -29,6 +32,7 @@ export default function Component() {
                   headers: { 'Content-Type': 'application/zip' }
                 });
                 console.log('proxy upload response', resp.data);
+                onUploadDone(`${CLOUDFARE_URL}/${resp.data.key}`);
               }
             };
             input.click();

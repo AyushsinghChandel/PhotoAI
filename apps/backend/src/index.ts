@@ -59,7 +59,6 @@ app.post('/upload-proxy', express.raw({ type: 'application/zip', limit: '200mb' 
 
 app.post('/ai/training', async (req, res) => {
   const parsedBody = TrainModel.safeParse(req.body);
-  const images = req.body.images;
 
   if (!parsedBody.success) {
     res.status(411).json({
