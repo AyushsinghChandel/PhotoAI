@@ -6,10 +6,9 @@ import dotenv from 'dotenv';
 import { FalAiModel } from './model/FalAiModel';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import cors from 'cors';
-
+import { authMiddleware } from './middleware';
 
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
-const USER_ID = "123";
 
 const falAiModel = new FalAiModel();
 const PORT = process.env.PORT || 8080;
@@ -57,7 +56,7 @@ app.post('/upload-proxy', express.raw({ type: 'application/zip', limit: '200mb' 
   }
 });
 
-app.post('/ai/training', async (req, res) => {
+app.post('/ai/training',authMiddleware, async (req, res) => {
   const parsedBody = TrainModel.safeParse(req.body);
 
   if (!parsedBody.success) {
@@ -76,7 +75,7 @@ app.post('/ai/training', async (req, res) => {
       ethinicity: parsedBody.data.ethinicity,
       eyeColor: parsedBody.data.eyeColor,
       bald: parsedBody.data.bald,
-      userId: USER_ID,
+      userId: req.userId!,
       zipUrl : parsedBody.data.zipUrl, 
       falAiRequestId : request_id
     }
@@ -88,7 +87,7 @@ app.post('/ai/training', async (req, res) => {
 
 });
 
-app.post('/ai/generate', async (req, res) => {
+app.post('/ai/generate', authMiddleware, async (req, res) => {
   const parsedBody = GenerateImage.safeParse(req.body);
 
   if(!parsedBody.success){
@@ -117,7 +116,7 @@ app.post('/ai/generate', async (req, res) => {
     data : {
       prompt: parsedBody.data.prompt,
       modelId: parsedBody.data.modelId,
-      userId: USER_ID,
+      userId: req.userId!,
       imageUrl: "",
       falAiRequestId : request_id
     }
@@ -129,7 +128,7 @@ app.post('/ai/generate', async (req, res) => {
 
 });
 
-app.post('/pack/generate', async (req, res) => {
+app.post('/pack/generate', authMiddleware, async (req, res) => {
   const parsedBody = GenrateImagesFromPack.safeParse(req.body);
 
 
@@ -152,7 +151,7 @@ app.post('/pack/generate', async (req, res) => {
     data : prompts.map((prompt,index) => ({
       prompt: prompt.prompt,
       modelId: parsedBody.data.modelId,
-      userId : USER_ID,
+      userId : req.userId!,
       imageUrl : "",
       falAiRequestId : requestIds[index]?.request_id ?? ""
       }))
@@ -174,7 +173,7 @@ app.get('/pack/bulk', async (req, res) => {
 
 });
 
-app.get('/image/bulk', async (req, res) => {
+app.get('/image/bulk', authMiddleware, async (req, res) => {
   const ids = req.query.images as string[];
   const limit = req.query.limit as string ?? "10";
   const offset = req.query.offset as string ?? "0";
@@ -185,7 +184,7 @@ app.get('/image/bulk', async (req, res) => {
       id : {
         in : ids
       },
-      userId: USER_ID
+      userId: req.userId!
     },
     skip : parseInt(offset),
     take : parseInt(limit)

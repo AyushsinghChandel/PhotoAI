@@ -22,9 +22,11 @@ import axios from "axios";
 import { Backend_URL } from "../config";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
+import { useAuth } from "@clerk/nextjs";
 
 
 export default function CardDemo() {
+  const {getToken} = useAuth();
   const [zipUrl, setZipUrl] = useState("");
   const [name, setName] = useState<string>("");
   const [type, setType] = useState<string>("");
@@ -47,11 +49,16 @@ export default function CardDemo() {
     };
     try {
       console.log('Training model with input', input);
-      await axios.post(`${Backend_URL}/ai/training`, input);
+      const token = await getToken(); 
+      await axios.post(`${Backend_URL}/ai/training`, input, {
+        headers: {
+          Authorization: `Bearer ${token }`
+        },
+      });
+      router.push('/');
     } catch (err) {
       console.error('Training failed', err);
     }
-    router.push('/');
   }
   return (
     <div className="flex flex-col items-center justify-center h-full">
