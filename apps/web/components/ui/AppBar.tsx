@@ -3,6 +3,7 @@ import {
   SignedIn,
   SignedOut,
   UserButton,
+  SignUpButton
 } from "@clerk/nextjs";
 import { Button } from "./button";
 export function AppBar() {
@@ -11,13 +12,18 @@ export function AppBar() {
       <div className="text-xl">PhotoAI</div>
       <div className="space-x-2" >
         <SignedOut>
-            <Button variant={"default"}>
-              <SignInButton />
-            </Button>
-        </SignedOut>
-        <SignedIn>
-          <UserButton />
-        </SignedIn>
+              <SignInButton>
+              <Button className="bg-white text-black rounded-xl font-medium text-sm sm:text-base cursor-pointer hover:bg-gray-100">Sign In</Button>
+              </SignInButton>
+              <SignUpButton>
+                <Button className="bg-black text-white rounded-xl font-medium text-sm sm:text-base cursor-pointer">
+                  Sign Up
+                </Button>
+              </SignUpButton>
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
       </div>
     </div>
   );
