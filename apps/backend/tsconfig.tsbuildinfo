@@ -1,1 +1,1 @@
-{"root":["./src/index.ts","./src/middleware.ts","./src/types.d.ts","./src/model/basemodel.ts","./src/model/falaimodel.ts"],"version":"5.9.2"}
+{"root":["./src/express.d.ts","./src/index.ts","./src/middleware.ts","./src/model/basemodel.ts","./src/model/falaimodel.ts"],"version":"5.9.2"}
