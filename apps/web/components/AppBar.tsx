@@ -5,7 +5,7 @@ import {
   UserButton,
   SignUpButton
 } from "@clerk/nextjs";
-import { Button } from "./button";
+import { Button } from "./ui/button";
 export function AppBar() {
   return (
     <div className="flex justify-between p-2 border-b">

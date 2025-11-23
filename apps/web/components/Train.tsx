@@ -19,14 +19,13 @@ import {
 import UploadModal from "@/components/ui/upload";
 import { useState } from "react";
 import axios from "axios";
-import { Backend_URL } from "../config";
+import { Backend_URL } from "@/app/config";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@clerk/nextjs";
 
-
-export default function CardDemo() {
-  const {getToken} = useAuth();
+export function Train() {
+  const { getToken } = useAuth();
   const [zipUrl, setZipUrl] = useState("");
   const [name, setName] = useState<string>("");
   const [type, setType] = useState<string>("");
@@ -45,19 +44,19 @@ export default function CardDemo() {
       age: parseInt(age ?? "0"),
       ethinicity,
       eyeColor,
-      bald
+      bald,
     };
     try {
-      console.log('Training model with input', input);
-      const token = await getToken(); 
+      console.log("Training model with input", input);
+      const token = await getToken();
       await axios.post(`${Backend_URL}/ai/training`, input, {
         headers: {
-          Authorization: `Bearer ${token }`
+          Authorization: `Bearer ${token}`,
         },
       });
-      router.push('/');
+      router.push("/");
     } catch (err) {
-      console.error('Training failed', err);
+      console.error("Training failed", err);
     }
   }
   return (
@@ -69,18 +68,31 @@ export default function CardDemo() {
         <CardContent>
           <form>
             <div className="flex flex-col gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="email">Name</Label>
-                <Input
-                  id="name"
-                  type="name"
-                  placeholder="Enter name of your model"
-                  required
-                  onChange={(e) => {
-                    setName(e.target.value);
-                  }}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Name</Label>
+                  <Input
+                    id="name"
+                    type="name"
+                    placeholder="Enter name of your model"
+                    required
+                    onChange={(e) => {
+                      setName(e.target.value);
+                    }}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="description">Age</Label>
+                  <Input
+                    id="Age"
+                    type="text"
+                    placeholder="Enter your age"
+                    required
+                    onChange={(e) => setAge(e.target.value)}
+                  />
+                </div>
               </div>
+              <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="description">Type</Label>
                 <Select onValueChange={(value) => setType(value)}>
@@ -93,16 +105,6 @@ export default function CardDemo() {
                     <SelectItem value="Other">Other</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="description">Age</Label>
-                <Input
-                  id="Age"
-                  type="text"
-                  placeholder="Enter your age"
-                  required
-                  onChange={(e) => setAge(e.target.value)}
-                />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="description">Ethnicity</Label>
@@ -133,6 +135,7 @@ export default function CardDemo() {
                   </SelectContent>
                 </Select>
               </div>
+              </div>
               <div className="grid gap-2">
                 <Label htmlFor="description">Eye Color</Label>
                 <Select onValueChange={(value) => setEyeColor(value)}>
@@ -155,15 +158,24 @@ export default function CardDemo() {
                 <Label htmlFor="description">Bald</Label>
                 <Switch onClick={(e) => setBald(!bald)} />
               </div>
-              <UploadModal onUploadDone={(url) => {
-                setZipUrl(url);
-              }}/>
+              <UploadModal
+                onUploadDone={(url) => {
+                  setZipUrl(url);
+                }}
+              />
             </div>
           </form>
         </CardContent>
         <CardFooter className="flex-col gap-2">
-          <Button type="button" disabled={!name ||!zipUrl || !type || !age || !ethinicity || !eyeColor} onClick={TrainModal} className="w-full">
-            Create Model 
+          <Button
+            type="button"
+            disabled={
+              !name || !zipUrl || !type || !age || !ethinicity || !eyeColor
+            }
+            onClick={TrainModal}
+            className="w-full"
+          >
+            Create Model
           </Button>
         </CardFooter>
       </Card>

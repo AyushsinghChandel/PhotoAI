@@ -7,13 +7,15 @@
     ".": "./index.js"
   },
   "scripts": {
-    "build" : "tsc -b"
+    "build": "tsc -b"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@repo/typescript-config": "workspace: *"
+    "@prisma/config": "^7.0.0",
+    "@repo/typescript-config": "workspace: *",
+    "@types/node": "^22.15.3"
   },
   "dependencies": {
     "@prisma/client": "^6.16.1",

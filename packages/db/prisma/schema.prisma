@@ -13,6 +13,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 model User {
   id              String     @id     @default(uuid())
   username        String
@@ -58,6 +59,9 @@ model OutputImages {
 model Packs {
   id         String    @id     @default(uuid())
   name       String
+  description String @default("")
+  imageUrl1   String  @default("")
+  imageUrl2   String  @default("")
   prompts     PackPrompts[]
 }
 
