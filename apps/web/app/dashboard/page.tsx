@@ -2,6 +2,8 @@ import { GenerateImages } from "@/components/GenerateImages";
 import { Packs } from "@/components/Packs";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Train } from "@/components/Train";
+import { Camera } from "@/components/Camera";
+import { use } from "react";
 
 export default function Dashboard() {
   return (
@@ -11,6 +13,7 @@ export default function Dashboard() {
           <Tabs defaultValue="account" className="w-2xl3">
             <div className="flex justify-center">
             <TabsList>
+              <TabsTrigger value="camera ">Camera</TabsTrigger>
               <TabsTrigger value="generate">Generate Image</TabsTrigger>
               <TabsTrigger value="train">Train Modal</TabsTrigger>
               <TabsTrigger value="packs">Packs</TabsTrigger>
@@ -24,6 +27,9 @@ export default function Dashboard() {
             </TabsContent>
             <TabsContent value="packs" className="">
               <Packs />
+            </TabsContent>
+            <TabsContent value="camera ">
+              <Camera />
             </TabsContent>
           </Tabs>
         </div>
