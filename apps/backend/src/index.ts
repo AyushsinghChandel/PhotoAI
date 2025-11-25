@@ -11,6 +11,7 @@ import { FalAiModel } from "./model/FalAiModel";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import cors from "cors";
 import { authMiddleware } from "./middleware";
+import { fal } from "@fal-ai/client";
 
 dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 
@@ -159,9 +160,19 @@ app.post("/pack/generate", authMiddleware, async (req, res) => {
     },
   });
 
+  const model= await prismaClient.model.findFirst({
+    where: {
+      id: parsedBody.data.modelId,
+    },
+  });
+
+  if (!model) {
+    return res.status(400).json({ message: "Model not found" });
+  }
+
   let requestIds: { request_id: string }[] = await Promise.all(
     prompts.map((prompt) =>
-      falAiModel.generateImage(prompt.prompt, parsedBody.data.modelId)
+      falAiModel.generateImage(prompt.prompt, model.tensorPath!)
     )
   );
 
@@ -199,6 +210,9 @@ app.get("/image/bulk", authMiddleware, async (req, res) => {
         in: ids,
       },
       userId: req.userId!,
+      TrainingStatus : {
+        not : "Failed"
+      }
     },
     skip: parseInt(offset),
     take: parseInt(limit),
@@ -228,13 +242,19 @@ app.post("/fal-ai/webhook/train", async (req, res) => {
 
   const { imageUrl } = await falAiModel.generateImageSync(req.body.tensor_path);
 
+  const result = await fal.queue.result("fal-ai/flux-lora", {
+    requestId: reqeustId,
+  }
+  );
+
   await prismaClient.model.updateMany({
     where: {
       falAiRequestId: reqeustId,
     },
     data: {
       trainingStatus: "Completed",
-      tensorPath: req.body.tensor_path,
+      //@ts-ignore
+      tensorPath: result.data.diffusers_lora_file.url,
       thumbnail: imageUrl
     },
   });
@@ -247,13 +267,26 @@ app.post("/fal-ai/webhook/train", async (req, res) => {
 app.post("/fal-ai/webhook/image", async (req, res) => {
   const reqeustId = req.body.request_id;
 
+  if(req.body.status === "ERROR") {
+    res.status(400).json({ message: "Error in image generation" });
+    prismaClient.outputImages.updateMany({
+      where: {
+        falAiRequestId: reqeustId,
+      },
+      data: {
+        TrainingStatus: "Failed",
+      },
+    });
+    return;
+  }
+
   await prismaClient.outputImages.updateMany({
     where: {
       falAiRequestId: reqeustId,
     },
     data: {
       TrainingStatus: "Generated",
-      imageUrl: req.body.image_url,
+      imageUrl: req.body.payload.images[0].url,
     },
   });
 
