@@ -240,12 +240,13 @@ app.get("/model/bulk", authMiddleware, async (req, res) => {
 app.post("/fal-ai/webhook/train", async (req, res) => {
   const reqeustId = req.body.request_id;
 
-  const { imageUrl } = await falAiModel.generateImageSync(req.body.tensor_path);
-
   const result = await fal.queue.result("fal-ai/flux-lora", {
     requestId: reqeustId,
   }
   );
+  //@ts-ignore
+  const { imageUrl } = await falAiModel.generateImageSync(result.data.diffusers_lora_file.url);
+
 
   await prismaClient.model.updateMany({
     where: {
