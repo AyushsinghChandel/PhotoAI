@@ -59,4 +59,16 @@ export class FalAiModel extends BaseModel {
     );
     return { request_id, response_url };
   }
+
+  public async generateImageSync(tensorPath: string){
+    const response = await fal.subscribe("fal-ai/flux-lora",{
+      input: {
+        prompt: "Generate a headshot for this person in front of a white background",
+        loras: [{path: tensorPath, scale: 1}]
+      },
+    })
+    return {
+      imageUrl: response.data.images[0]?.url
+    }
+  }
 }

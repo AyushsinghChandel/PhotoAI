@@ -8,6 +8,7 @@ import { TImage } from "./ImageCard";
 
 export function Camera() {
   const [images, setImages] = useState<TImage[]>([]);
+  const [imageLoading, setImageLoading] = useState<boolean>(true);
   const { getToken } = useAuth();
 
   useEffect(() => {
@@ -19,6 +20,7 @@ export function Camera() {
         },
       });
       setImages(response.data.images || []);
+      setImageLoading(false);
     })();
   }, []);
   return (

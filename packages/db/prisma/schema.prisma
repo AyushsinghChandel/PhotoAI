@@ -33,12 +33,14 @@ model Model {
   userId         String
   triggerWord    String?
   tensorPath     String?
+  thumbnail      String?
   trainingStatus         ModelTrainingStatusEnum   @default(Pending)
   outputImages   OutputImages[]
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   falAiRequestId String?
   zipUrl       String
+  open         Boolean     @default(false)
   @@index([falAiRequestId])
 }
 
