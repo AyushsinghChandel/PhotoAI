@@ -214,6 +214,7 @@ app.get("/image/bulk", authMiddleware, async (req, res) => {
         not : "Failed"
       }
     },
+    orderBy: { createdAt: "desc" },
     skip: parseInt(offset),
     take: parseInt(limit),
   });
