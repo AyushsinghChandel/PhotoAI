@@ -50,54 +50,64 @@ export function GenerateImages() {
               <Skeleton className="w-45 h-55 aspect-[4/5] rounded-lg" />
             </>
           )}
-          {!modelLoading && models.map((model) => (
-            <div
-              key={model.id}
-              className="cursor-pointer group"
-              onClick={() => {
-                setSelectedModel(model.id);
-              }}
-            >
+          {!modelLoading &&
+            models.map((model) => (
               <div
-                className={`p-2 rounded-xl transition-all ${
-                  selectedModel === model.id
-                    ? "border-2 border-red-400"
-                    : "border-2 border-transparent"
-                }`}
+                key={model.id}
+                className="cursor-pointer group"
+                onClick={() => {
+                  setSelectedModel(model.id);
+                }}
               >
-                <img
-                  className="w-40 h-50 aspect-[4/5] object-cover rounded-lg"
-                  src={model.thumbnail}
-                  alt={model.name}
-                />
+                <div
+                  className={`p-2 rounded-xl transition-all ${
+                    selectedModel === model.id
+                      ? "border-2 border-red-400"
+                      : "border-2 border-transparent"
+                  }`}
+                >
+                  <img
+                    className="w-40 h-50 aspect-[4/5] object-cover rounded-lg"
+                    src={model.thumbnail}
+                    alt={model.name}
+                  />
+                </div>
+                <div className="text-center mt-2 font-semibold group-hover:opacity-80 transition-opacity">
+                  {model.name}
+                </div>
               </div>
-              <div className="text-center mt-2 font-semibold group-hover:opacity-80 transition-opacity">
-                {model.name}
-              </div>
-            </div>
-          ))}
+            ))}
         </div>
 
         <Textarea
-        onChange={(e) => {
-          setPrompt(e.target.value);
-        }}
+          onChange={(e) => {
+            setPrompt(e.target.value);
+          }}
           placeholder="Describe the image you would like to generate..."
           className="py-8 px-4 w-full border border-blue-200 hover:border-blue-300 focus:border-blue-300 outline-none mt-6"
         />
         <div className="flex justify-center pt-4">
-          <Button onClick={async () => {
-            const token = await getToken();
-            await axios.post(`${Backend_URL}/ai/generate`,{
-              prompt,
-              modelId: selectedModel,
-              num: 1 
-            },{
-              headers: {
-                Authorization: `Bearer ${token}`,
-              }
-            })
-          }} variant={"secondary"}>Generate Images</Button>
+          <Button
+            onClick={async () => {
+              const token = await getToken();
+              await axios.post(
+                `${Backend_URL}/ai/generate`,
+                {
+                  prompt,
+                  modelId: selectedModel,
+                  num: 1,
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
+            }}
+            variant={"secondary"}
+          >
+            Generate Images
+          </Button>
         </div>
       </div>
     </div>

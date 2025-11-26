@@ -1,6 +1,4 @@
-import { Backend_URL } from "@/app/config";
-import { useAuth } from "@clerk/nextjs";
-import axios from "axios";
+"use client";
 
 export interface TPack {
   id: string;
@@ -10,29 +8,35 @@ export interface TPack {
   description: string;
 }
 
-export function PackCard(props: TPack & { selectedModelId: string }) {
-    const {getToken} = useAuth();
+interface PackCardProps extends TPack {
+  selected: boolean;
+  onClick: () => void;
+}
+
+export function PackCard(props: PackCardProps) {
   return (
-    <div className="rounded hover:border-red-400 border-2 w-full p-2 cursor-pointer" onClick={async () => {
-        const token = getToken();
-        await axios.post(`${Backend_URL}/pack/generate`,{
-            packId : props.id,
-            modelId : props.selectedModelId
-        },{
-            headers: {
-                Authorization: `Bearer ${token}`,
-            }
-        })
-    }}>
-      <div className="flex p-4 gap-4 ">
-        <img src={props.imageUrl1} className="w-1/2 aspect-[4/5] object-cover rounded-lg" />
-        <img src={props.imageUrl2} className="w-1/2 aspect-[3/4] object-cover rounded-lg" />
-      </div>
-      <div className="font-bold text-lg pb-2">
-        {props.name}
-      </div>
-      <div className="text-sm">
-        {props.description}
+    <div className="cursor-pointer group" onClick={props.onClick}>
+      <div
+        className={`p-2 rounded-xl transition-all ${
+          props.selected ? "border-2 border-red-400" : "border-2 border-transparent"
+        }`}
+      >
+        <div className="flex gap-2 mb-2">
+          <img
+            className="w-1/2 aspect-[4/5] object-cover rounded-lg"
+            src={props.imageUrl1}
+            alt={props.name}
+          />
+          <img
+            className="w-1/2 aspect-[4/5] object-cover rounded-lg"
+            src={props.imageUrl2}
+            alt={props.name}
+          />
+        </div>
+        <div className="font-semibold text-lg pb-1">{props.name}</div>
+        <div className="text-sm text-gray-500 line-clamp-2">
+          {props.description}
+        </div>
       </div>
     </div>
   );
